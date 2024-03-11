@@ -1,12 +1,11 @@
 // 客户端组件
-'use client'; 
+'use client';
 
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import {
-  useSearchParams,
-  useRouter,
-  usePathname,
-} from 'next/navigation';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+
+// 防抖
+import { useDebounce, useDebouncedCallback } from 'use-debounce';
 
 export default function Search({ placeholder }: { placeholder: string }) {
   // 使用useSearchParams钩子获取当前URL的查询参数
@@ -16,10 +15,11 @@ export default function Search({ placeholder }: { placeholder: string }) {
   // 使用useRouter钩子以编程方式启用客户端组件内的路由之间的导航
   const { replace } = useRouter();
 
-  // 监听器
-  function handleSearch(term: string) {
+  // 监听
+  const handleSearch = useDebouncedCallback((term) => {
     // 允许你利用 URLSearchParams 提供的各种方法来操作URL的查询字符串，例如添加、删除或读取查询参数
     const params = new URLSearchParams(SearchParams);
+    params.set('page', '1')
     if (term) {
       // // 如果term有值（即非空、非null、非undefined），则在查询字符串中设置 'query' 参数为 term 的值
       params.set('query', term);
@@ -29,7 +29,7 @@ export default function Search({ placeholder }: { placeholder: string }) {
     }
     // replace 方法来更新浏览器的当前URL而不会重新加载页面
     replace(`${pathname}?${params.toString()}`);
-  }
+  }, 300);
   return (
     <div className="relative flex flex-1 flex-shrink-0">
       <label htmlFor="search" className="sr-only">
