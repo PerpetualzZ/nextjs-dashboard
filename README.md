@@ -1,2 +1,4 @@
 # nextjs-dashboard
- learn
+learn
+Email: user@nextmail.com
+Password: 123456
