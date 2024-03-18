@@ -4,6 +4,8 @@ import { z } from 'zod'; //类型验证库
 import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache'; // 除此缓存并向服务器触发新请求
 import { redirect } from 'next/navigation'; // 重定向
+import { signIn } from '@/auth'
+import { AuthError } from 'next-auth';
 
 const FormSchema = z.object({
   id: z.string(),
@@ -115,5 +117,25 @@ export async function deleteInvoice(id: string) {
     return { message: 'Deleted Invoice.' };
   } catch (error) {
     return { message: 'Database Error: Failed to Delete Invoice.' };
+  }
+}
+
+// 更新登录表单
+export async function authenticate(
+  prevState: string | undefined,
+  formData: FormData,
+) {
+  try {
+    await signIn('credentials', formData);
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case 'CredentialsSignin':
+          return 'Invalid credentials.';
+        default:
+          return 'Something went wrong.';
+      }
+    }
+    throw error;
   }
 }
